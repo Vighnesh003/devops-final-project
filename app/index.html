@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>EduTrack – Student Attendance Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet"/>
+<style>
+/* ── RESET & TOKENS ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#F0F4FF;
+  --surface:#FFFFFF;
+  --card:#FFFFFF;
+  --navy:#0B1437;
+  --blue:#2563EB;
+  --blue-light:#EFF6FF;
+  --indigo:#4F46E5;
+  --green:#10B981;
+  --green-light:#ECFDF5;
+  --amber:#F59E0B;
+  --amber-light:#FFFBEB;
+  --red:#EF4444;
+  --red-light:#FEF2F2;
+  --purple:#8B5CF6;
+  --purple-light:#F5F3FF;
+  --text:#0B1437;
+  --sub:#64748B;
+  --border:#E2E8F0;
+  --shadow:0 1px 3px rgba(0,0,0,0.08),0 4px 16px rgba(0,0,0,0.04);
+  --shadow-lg:0 8px 32px rgba(11,20,55,0.12);
+}
+
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* ── PAGES ── */
+.page{display:none;min-height:100vh;}
+.page.active{display:block;}
+
+/* ─── LOGIN PAGE ─── */
+#login-page{
+  background:linear-gradient(135deg,#0B1437 0%,#1E3A8A 50%,#1E1B4B 100%);
+  display:flex;align-items:center;justify-content:center;padding:2rem;min-height:100vh;
+}
+.login-wrap{width:100%;max-width:480px;}
+.login-brand{text-align:center;margin-bottom:2.5rem;}
+.login-brand .brand-icon{
+  width:64px;height:64px;background:var(--blue);border-radius:16px;
+  display:inline-flex;align-items:center;justify-content:center;font-size:2rem;
+  margin-bottom:1rem;box-shadow:0 0 40px rgba(37,99,235,0.5);
+}
+.login-brand h1{font-family:'Space Grotesk',sans-serif;font-size:2rem;font-weight:700;color:#fff;letter-spacing:-0.5px;}
+.login-brand p{color:rgba(255,255,255,0.5);font-size:0.9rem;margin-top:0.3rem;}
+
+.login-card{background:rgba(255,255,255,0.05);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:2.5rem;}
+.role-tabs{display:flex;gap:0.5rem;background:rgba(255,255,255,0.05);border-radius:10px;padding:4px;margin-bottom:2rem;}
+.role-tab{
+  flex:1;padding:0.6rem;border:none;background:transparent;color:rgba(255,255,255,0.5);
+  font-family:'Inter',sans-serif;font-size:0.85rem;font-weight:500;border-radius:7px;cursor:pointer;transition:all 0.2s;
+}
+.role-tab.active{background:var(--blue);color:#fff;box-shadow:0 2px 8px rgba(37,99,235,0.4);}
+.form-group{margin-bottom:1.2rem;}
+.form-group label{display:block;color:rgba(255,255,255,0.6);font-size:0.82rem;font-weight:500;margin-bottom:0.5rem;letter-spacing:0.3px;}
+.form-group input,.form-group select{
+  width:100%;padding:0.75rem 1rem;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);
+  border-radius:10px;color:#fff;font-family:'Inter',sans-serif;font-size:0.92rem;outline:none;transition:border-color 0.2s;
+}
+.form-group input::placeholder{color:rgba(255,255,255,0.3);}
+.form-group input:focus{border-color:var(--blue);}
+.login-btn{
+  width:100%;padding:0.85rem;background:var(--blue);border:none;border-radius:10px;
+  color:#fff;font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:600;
+  cursor:pointer;transition:all 0.2s;margin-top:0.5rem;
+}
+.login-btn:hover{background:#1D4ED8;box-shadow:0 4px 16px rgba(37,99,235,0.4);}
+.demo-hint{text-align:center;margin-top:1.2rem;color:rgba(255,255,255,0.35);font-size:0.78rem;}
+
+/* ─── APP SHELL ─── */
+.app-shell{display:flex;min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{
+  width:260px;min-height:100vh;background:var(--navy);
+  display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:50;
+  transition:transform 0.3s;
+}
+.sidebar-brand{
+  padding:1.5rem 1.5rem 1rem;border-bottom:1px solid rgba(255,255,255,0.06);
+  display:flex;align-items:center;gap:0.75rem;
+}
+.s-icon{width:36px;height:36px;background:var(--blue);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+.s-brand-name{font-family:'Space Grotesk',sans-serif;font-weight:700;color:#fff;font-size:1.1rem;}
+.s-brand-role{font-size:0.72rem;color:rgba(255,255,255,0.35);font-weight:400;}
+
+.sidebar-nav{flex:1;padding:1rem 0.75rem;overflow-y:auto;}
+.nav-section-label{font-size:0.68rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.25);padding:0.5rem 0.75rem;margin-top:0.5rem;}
+.nav-item{
+  display:flex;align-items:center;gap:0.75rem;padding:0.7rem 0.75rem;border-radius:9px;
+  color:rgba(255,255,255,0.5);font-size:0.88rem;font-weight:500;cursor:pointer;
+  transition:all 0.15s;margin-bottom:2px;text-decoration:none;
+}
+.nav-item:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.85);}
+.nav-item.active{background:var(--blue);color:#fff;box-shadow:0 2px 8px rgba(37,99,235,0.3);}
+.nav-item .ni{font-size:1.1rem;width:20px;text-align:center;}
+.nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:0.65rem;font-weight:700;padding:2px 7px;border-radius:100px;}
+
+.sidebar-footer{padding:1rem 1.5rem;border-top:1px solid rgba(255,255,255,0.06);}
+.sidebar-user{display:flex;align-items:center;gap:0.75rem;}
+.su-avatar{width:36px;height:36px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:0.9rem;flex-shrink:0;}
+.su-name{font-size:0.85rem;font-weight:600;color:#fff;}
+.su-role{font-size:0.72rem;color:rgba(255,255,255,0.35);}
+.logout-btn{margin-left:auto;background:transparent;border:none;color:rgba(255,255,255,0.3);cursor:pointer;font-size:1.1rem;padding:4px;transition:color 0.2s;}
+.logout-btn:hover{color:var(--red);}
+
+/* MAIN */
+.main-content{margin-left:260px;flex:1;display:flex;flex-direction:column;}
+.topbar{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:40;
+}
+.topbar-title{font-family:'Space Grotesk',sans-serif;font-size:1.15rem;font-weight:700;color:var(--navy);}
+.topbar-right{display:flex;align-items:center;gap:1rem;}
+.topbar-date{font-size:0.82rem;color:var(--sub);}
+.notif-btn{position:relative;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.5rem 0.6rem;cursor:pointer;font-size:1rem;}
+.notif-dot{position:absolute;top:6px;right:6px;width:7px;height:7px;background:var(--red);border-radius:50%;border:1.5px solid #fff;}
+
+.content{padding:2rem;flex:1;}
+
+/* PANELS */
+.panel{display:none;}
+.panel.active{display:block;}
+
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem;}
+.stat-card{
+  background:var(--card);border-radius:14px;padding:1.4rem 1.5rem;
+  border:1px solid var(--border);box-shadow:var(--shadow);
+  display:flex;align-items:center;gap:1rem;
+}
+.stat-ico{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;}
+.stat-ico.blue{background:var(--blue-light);}
+.stat-ico.green{background:var(--green-light);}
+.stat-ico.amber{background:var(--amber-light);}
+.stat-ico.red{background:var(--red-light);}
+.stat-ico.purple{background:var(--purple-light);}
+.stat-val{font-family:'Space Grotesk',sans-serif;font-size:1.75rem;font-weight:700;color:var(--navy);line-height:1;}
+.stat-lbl{font-size:0.78rem;color:var(--sub);margin-top:0.2rem;}
+.stat-chg{font-size:0.75rem;font-weight:600;margin-top:0.3rem;}
+.stat-chg.up{color:var(--green);}
+.stat-chg.dn{color:var(--red);}
+
+/* SECTION CARD */
+.sec-card{background:var(--card);border-radius:14px;border:1px solid var(--border);box-shadow:var(--shadow);margin-bottom:1.5rem;}
+.sec-head{padding:1.2rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;}
+.sec-head h2{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;color:var(--navy);}
+.sec-body{padding:1.5rem;}
+
+/* GRID 2 */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+thead th{font-size:0.75rem;font-weight:600;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px;padding:0.75rem 1rem;text-align:left;background:#F8FAFC;border-bottom:1px solid var(--border);}
+tbody td{padding:0.9rem 1rem;border-bottom:1px solid var(--border);font-size:0.88rem;color:var(--text);vertical-align:middle;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:#F8FAFC;}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:0.73rem;font-weight:600;padding:3px 10px;border-radius:100px;}
+.badge.green{background:var(--green-light);color:var(--green);}
+.badge.red{background:var(--red-light);color:var(--red);}
+.badge.amber{background:var(--amber-light);color:var(--amber);}
+.badge.blue{background:var(--blue-light);color:var(--blue);}
+.badge.purple{background:var(--purple-light);color:var(--purple);}
+
+/* AVATAR CELL */
+.av-cell{display:flex;align-items:center;gap:0.6rem;}
+.av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.78rem;font-weight:700;color:#fff;flex-shrink:0;}
+
+/* PROGRESS BAR */
+.prog-wrap{display:flex;align-items:center;gap:0.75rem;}
+.prog-bar{flex:1;height:6px;background:var(--border);border-radius:100px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:100px;transition:width 0.6s ease;}
+.prog-fill.green{background:var(--green);}
+.prog-fill.amber{background:var(--amber);}
+.prog-fill.red{background:var(--red);}
+.prog-pct{font-size:0.78rem;font-weight:600;min-width:36px;text-align:right;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:0.55rem 1.1rem;border-radius:8px;font-family:'Inter',sans-serif;font-size:0.84rem;font-weight:600;cursor:pointer;border:none;transition:all 0.2s;text-decoration:none;}
+.btn-primary{background:var(--blue);color:#fff;}
+.btn-primary:hover{background:#1D4ED8;}
+.btn-success{background:var(--green);color:#fff;}
+.btn-outline{background:transparent;color:var(--blue);border:1px solid var(--blue);}
+.btn-outline:hover{background:var(--blue-light);}
+.btn-sm{padding:0.35rem 0.75rem;font-size:0.78rem;}
+.btn-danger{background:var(--red);color:#fff;}
+
+/* SEARCH + FILTER BAR */
+.filter-bar{display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;}
+.search-box{position:relative;flex:1;min-width:200px;}
+.search-box input{width:100%;padding:0.6rem 1rem 0.6rem 2.4rem;border:1px solid var(--border);border-radius:8px;font-family:'Inter',sans-serif;font-size:0.88rem;background:#fff;color:var(--text);outline:none;transition:border-color 0.2s;}
+.search-box input:focus{border-color:var(--blue);}
+.search-box .si{position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:var(--sub);font-size:0.9rem;}
+.filter-select{padding:0.6rem 1rem;border:1px solid var(--border);border-radius:8px;font-family:'Inter',sans-serif;font-size:0.85rem;color:var(--text);background:#fff;cursor:pointer;outline:none;}
+
+/* ATTENDANCE MARK */
+.att-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;}
+.att-card{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:1rem 1.1rem;display:flex;align-items:center;justify-content:space-between;}
+.att-info{display:flex;align-items:center;gap:0.7rem;}
+.att-name{font-weight:600;font-size:0.88rem;}
+.att-roll{font-size:0.75rem;color:var(--sub);}
+.att-toggle{display:flex;gap:0.4rem;}
+.att-btn{width:32px;height:32px;border-radius:8px;border:2px solid var(--border);background:#fff;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.att-btn.p-active{background:var(--green);border-color:var(--green);}
+.att-btn.a-active{background:var(--red);border-color:var(--red);}
+.att-btn.l-active{background:var(--amber);border-color:var(--amber);}
+
+/* CALENDAR */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.cal-day-hdr{text-align:center;font-size:0.72rem;font-weight:600;color:var(--sub);padding:4px;}
+.cal-day{aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.82rem;font-weight:500;cursor:pointer;transition:all 0.15s;}
+.cal-day.empty{background:transparent;}
+.cal-day.present{background:var(--green-light);color:var(--green);}
+.cal-day.absent{background:var(--red-light);color:var(--red);}
+.cal-day.holiday{background:var(--purple-light);color:var(--purple);}
+.cal-day.today{background:var(--blue);color:#fff;font-weight:700;}
+.cal-day.future{background:#F8FAFC;color:var(--sub);}
+.cal-legend{display:flex;gap:1rem;margin-top:1rem;flex-wrap:wrap;}
+.cal-leg-item{display:flex;align-items:center;gap:0.4rem;font-size:0.75rem;color:var(--sub);}
+.cal-dot{width:10px;height:10px;border-radius:3px;}
+
+/* DONUT CHART */
+.donut-wrap{display:flex;align-items:center;gap:1.5rem;}
+.donut{width:120px;height:120px;border-radius:50%;flex-shrink:0;}
+.donut-legend{display:flex;flex-direction:column;gap:0.5rem;}
+.dl-item{display:flex;align-items:center;gap:0.5rem;font-size:0.82rem;}
+.dl-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
+.dl-val{font-weight:700;margin-left:auto;padding-left:1rem;}
+
+/* NOTICE / ALERT */
+.notice{border-radius:10px;padding:1rem 1.2rem;margin-bottom:0.75rem;display:flex;align-items:flex-start;gap:0.75rem;font-size:0.86rem;}
+.notice.info{background:var(--blue-light);border-left:3px solid var(--blue);}
+.notice.warn{background:var(--amber-light);border-left:3px solid var(--amber);}
+.notice.success{background:var(--green-light);border-left:3px solid var(--green);}
+.notice-ico{font-size:1.1rem;flex-shrink:0;}
+.notice-title{font-weight:600;margin-bottom:2px;}
+.notice-sub{color:var(--sub);font-size:0.8rem;}
+
+/* QUICK ACTION BUTTONS */
+.qa-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;}
+.qa-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.2rem;text-align:center;cursor:pointer;transition:all 0.2s;box-shadow:var(--shadow);}
+.qa-card:hover{border-color:var(--blue);box-shadow:var(--shadow-lg);transform:translateY(-2px);}
+.qa-ico{font-size:1.8rem;margin-bottom:0.5rem;}
+.qa-lbl{font-size:0.82rem;font-weight:600;color:var(--navy);}
+
+/* FORM STYLES */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.form-field{margin-bottom:1.1rem;}
+.form-field label{display:block;font-size:0.82rem;font-weight:600;color:var(--navy);margin-bottom:0.4rem;}
+.form-field input,.form-field select,.form-field textarea{
+  width:100%;padding:0.7rem 1rem;border:1px solid var(--border);border-radius:8px;
+  font-family:'Inter',sans-serif;font-size:0.88rem;color:var(--text);background:#fff;outline:none;
+  transition:border-color 0.2s;
+}
+.form-field input:focus,.form-field select:focus{border-color:var(--blue);}
+.form-field textarea{resize:vertical;min-height:90px;}
+
+/* REPORT BARS */
+.report-subject{display:flex;align-items:center;gap:1rem;padding:0.8rem 0;border-bottom:1px solid var(--border);}
+.report-subject:last-child{border-bottom:none;}
+.rs-name{min-width:130px;font-size:0.87rem;font-weight:600;}
+.rs-bar{flex:1;height:8px;background:var(--border);border-radius:100px;overflow:hidden;}
+.rs-fill{height:100%;border-radius:100px;}
+.rs-stat{font-size:0.8rem;font-weight:600;min-width:50px;text-align:right;}
+
+/* RESPONSIVE */
+@media(max-width:1100px){.stats-row{grid-template-columns:repeat(2,1fr);}.grid-2{grid-template-columns:1fr;}}
+@media(max-width:768px){.sidebar{transform:translateX(-100%);}.main-content{margin-left:0;}.stats-row{grid-template-columns:1fr 1fr;}.qa-grid{grid-template-columns:repeat(2,1fr);}}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:2rem;right:2rem;background:var(--navy);color:#fff;padding:0.9rem 1.5rem;
+  border-radius:12px;font-size:0.88rem;font-weight:500;box-shadow:var(--shadow-lg);
+  transform:translateY(80px);opacity:0;transition:all 0.3s;z-index:1000;display:flex;align-items:center;gap:0.6rem;
+}
+.toast.show{transform:translateY(0);opacity:1;}
+</style>
+</head>
+<body>
+
+<!-- ════════════ LOGIN PAGE ════════════ -->
+<div id="login-page" class="page active">
+  <div class="login-wrap">
+    <div class="login-brand">
+      <div class="brand-icon">🎓</div>
+      <h1>EduTrack</h1>
+      <p>Attendance Management System</p>
+    </div>
+    <div class="login-card">
+      <div class="role-tabs">
+        <button class="role-tab active" onclick="setRole('student',this)">Student</button>
+        <button class="role-tab" onclick="setRole('teacher',this)">Teacher</button>
+        <button class="role-tab" onclick="setRole('admin',this)">Admin</button>
+      </div>
+      <div class="form-group">
+        <label>ID / Username</label>
+        <input type="text" id="login-id" placeholder="Enter your ID"/>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="login-pass" placeholder="Enter password"/>
+      </div>
+      <button class="login-btn" onclick="doLogin()">Sign In →</button>
+      <p class="demo-hint">Demo — Any credentials work. Just click Sign In.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ STUDENT PORTAL ════════════ -->
+<div id="student-page" class="page">
+  <div class="app-shell">
+    <aside class="sidebar" id="student-sidebar">
+      <div class="sidebar-brand">
+        <div class="s-icon">🎓</div>
+        <div><div class="s-brand-name">EduTrack</div><div class="s-brand-role">Student Portal</div></div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">Main</div>
+        <a class="nav-item active" onclick="showPanel('s','dashboard',this)"><span class="ni">📊</span>Dashboard</a>
+        <a class="nav-item" onclick="showPanel('s','attendance',this)"><span class="ni">📅</span>My Attendance</a>
+        <a class="nav-item" onclick="showPanel('s','subjects',this)"><span class="ni">📚</span>Subjects</a>
+        <a class="nav-item" onclick="showPanel('s','reports',this)"><span class="ni">📈</span>Reports</a>
+        <div class="nav-section-label">Support</div>
+        <a class="nav-item" onclick="showPanel('s','leave',this)"><span class="ni">✉️</span>Leave Request<span class="nav-badge">1</span></a>
+        <a class="nav-item" onclick="showPanel('s','notices',this)"><span class="ni">🔔</span>Notices</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="su-avatar" style="background:#6366F1;">RK</div>
+          <div><div class="su-name">Rahul Kumar</div><div class="su-role">CS — Roll 2201</div></div>
+          <button class="logout-btn" onclick="logout()" title="Logout">⏏</button>
+        </div>
+      </div>
+    </aside>
+    <div class="main-content">
+      <div class="topbar">
+        <div class="topbar-title" id="s-topbar-title">Dashboard</div>
+        <div class="topbar-right">
+          <span class="topbar-date" id="today-date"></span>
+          <button class="notif-btn">🔔<span class="notif-dot"></span></button>
+        </div>
+      </div>
+      <div class="content">
+
+        <!-- STUDENT DASHBOARD -->
+        <div class="panel active" id="s-dashboard">
+          <div class="stats-row">
+            <div class="stat-card"><div class="stat-ico blue">📅</div><div><div class="stat-val">87%</div><div class="stat-lbl">Overall Attendance</div><div class="stat-chg up">↑ 2% this month</div></div></div>
+            <div class="stat-card"><div class="stat-ico green">✅</div><div><div class="stat-val">68</div><div class="stat-lbl">Classes Present</div><div class="stat-chg up">↑ 4 this week</div></div></div>
+            <div class="stat-card"><div class="stat-ico red">❌</div><div><div class="stat-val">10</div><div class="stat-lbl">Classes Absent</div><div class="stat-chg dn">↑ 1 this week</div></div></div>
+            <div class="stat-card"><div class="stat-ico amber">📝</div><div><div class="stat-val">78</div><div class="stat-lbl">Total Classes</div><div class="stat-lbl" style="margin-top:4px">Semester Total</div></div></div>
+          </div>
+          <div class="grid-2">
+            <div class="sec-card">
+              <div class="sec-head"><h2>Subject-wise Attendance</h2></div>
+              <div class="sec-body">
+                <div class="report-subject"><div class="rs-name">Data Structures</div><div class="rs-bar"><div class="rs-fill" style="width:92%;background:var(--green)"></div></div><div class="rs-stat" style="color:var(--green)">92%</div></div>
+                <div class="report-subject"><div class="rs-name">Operating Sys.</div><div class="rs-bar"><div class="rs-fill" style="width:78%;background:var(--amber)"></div></div><div class="rs-stat" style="color:var(--amber)">78%</div></div>
+                <div class="report-subject"><div class="rs-name">Mathematics III</div><div class="rs-bar"><div class="rs-fill" style="width:95%;background:var(--green)"></div></div><div class="rs-stat" style="color:var(--green)">95%</div></div>
+                <div class="report-subject"><div class="rs-name">DBMS</div><div class="rs-bar"><div class="rs-fill" style="width:65%;background:var(--red)"></div></div><div class="rs-stat" style="color:var(--red)">65%</div></div>
+                <div class="report-subject"><div class="rs-name">Computer Networks</div><div class="rs-bar"><div class="rs-fill" style="width:88%;background:var(--green)"></div></div><div class="rs-stat" style="color:var(--green)">88%</div></div>
+              </div>
+            </div>
+            <div class="sec-card">
+              <div class="sec-head"><h2>Attendance This Month</h2></div>
+              <div class="sec-body">
+                <div class="cal-grid" id="student-cal"></div>
+                <div class="cal-legend">
+                  <div class="cal-leg-item"><div class="cal-dot" style="background:var(--green)"></div>Present</div>
+                  <div class="cal-leg-item"><div class="cal-dot" style="background:var(--red)"></div>Absent</div>
+                  <div class="cal-leg-item"><div class="cal-dot" style="background:var(--purple)"></div>Holiday</div>
+                  <div class="cal-leg-item"><div class="cal-dot" style="background:var(--blue)"></div>Today</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="sec-card">
+            <div class="sec-head"><h2>⚠️ Attendance Warnings</h2></div>
+            <div class="sec-body">
+              <div class="notice warn"><span class="notice-ico">⚠️</span><div><div class="notice-title">DBMS — Low Attendance (65%)</div><div class="notice-sub">Minimum 75% required. Attend next 5 consecutive classes to recover.</div></div></div>
+              <div class="notice success"><span class="notice-ico">✅</span><div><div class="notice-title">Mathematics III — Excellent (95%)</div><div class="notice-sub">You're on track! Keep it up.</div></div></div>
+              <div class="notice info"><span class="notice-ico">ℹ️</span><div><div class="notice-title">Operating Systems — Borderline (78%)</div><div class="notice-sub">3% above minimum. Avoid any absences this week.</div></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STUDENT ATTENDANCE -->
+        <div class="panel" id="s-attendance">
+          <div class="sec-card">
+            <div class="sec-head">
+              <h2>Attendance History</h2>
+              <div class="filter-bar">
+                <select class="filter-select"><option>All Subjects</option><option>Data Structures</option><option>DBMS</option><option>Mathematics III</option></select>
+                <select class="filter-select"><option>This Month</option><option>Last Month</option><option>Semester</option></select>
+              </div>
+            </div>
+            <div class="sec-body tbl-wrap">
+              <table>
+                <thead><tr><th>Date</th><th>Subject</th><th>Faculty</th><th>Time</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr><td>Jul 24, 2025</td><td>Data Structures</td><td>Dr. Priya Sharma</td><td>9:00 AM</td><td><span class="badge green">✓ Present</span></td></tr>
+                  <tr><td>Jul 24, 2025</td><td>Mathematics III</td><td>Prof. Anil Mehta</td><td>11:00 AM</td><td><span class="badge green">✓ Present</span></td></tr>
+                  <tr><td>Jul 23, 2025</td><td>DBMS</td><td>Dr. Sunita Rao</td><td>10:00 AM</td><td><span class="badge red">✗ Absent</span></td></tr>
+                  <tr><td>Jul 23, 2025</td><td>Operating Systems</td><td>Mr. Kiran Patel</td><td>2:00 PM</td><td><span class="badge green">✓ Present</span></td></tr>
+                  <tr><td>Jul 22, 2025</td><td>Computer Networks</td><td>Dr. Deepak Joshi</td><td>9:00 AM</td><td><span class="badge amber">⏸ Leave</span></td></tr>
+                  <tr><td>Jul 21, 2025</td><td>Data Structures</td><td>Dr. Priya Sharma</td><td>9:00 AM</td><td><span class="badge green">✓ Present</span></td></tr>
+                  <tr><td>Jul 20, 2025</td><td>DBMS</td><td>Dr. Sunita Rao</td><td>10:00 AM</td><td><span class="badge red">✗ Absent</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- STUDENT SUBJECTS -->
+        <div class="panel" id="s-subjects">
+          <div class="stats-row" style="grid-template-columns:repeat(3,1fr)">
+            <div class="stat-card"><div class="stat-ico blue">📚</div><div><div class="stat-val">5</div><div class="stat-lbl">Total Subjects</div></div></div>
+            <div class="stat-card"><div class="stat-ico green">👨‍🏫</div><div><div class="stat-val">5</div><div class="stat-lbl">Faculty Members</div></div></div>
+            <div class="stat-card"><div class="stat-ico amber">⏱️</div><div><div class="stat-val">30</div><div class="stat-lbl">Weekly Hours</div></div></div>
+          </div>
+          <div class="sec-card">
+            <div class="sec-head"><h2>My Subjects — Semester 5</h2></div>
+            <div class="sec-body tbl-wrap">
+              <table>
+                <thead><tr><th>Subject</th><th>Code</th><th>Faculty</th><th>Classes</th><th>Present</th><th>Attendance</th></tr></thead>
+                <tbody>
+                  <tr><td><b>Data Structures</b></td><td><span class="badge blue">CS501</span></td><td>Dr. Priya Sharma</td><td>24</td><td>22</td><td><div class="prog-wrap"><div class="prog-bar"><div class="prog-fill green" style="width:92%"></div></div><span class="prog-pct" style="color:var(--green)">92%</span></div></td></tr>
+                  <tr><td><b>Operating Systems</b></td><td><span class="badge blue">CS502</span></td><td>Mr. Kiran Patel</td><td>18</td><td>14</td><td><div class="prog-wrap"><div class="prog-bar"><div class="prog-fill amber" style="width:78%"></div></div><span class="prog-pct" style="color:var(--amber)">78%</span></div></td></tr>
+                  <tr><td><b>Mathematics III</b></td><td><span class="badge blue">MA501</span></td><td>Prof. Anil Mehta</td><td>20</td><td>19</td><td><div class="prog-wrap"><div class="prog-bar"><div class="prog-fill green" style="width:95%"></div></div><span class="prog-pct" style="color:var(--green)">95%</span></div></td></tr>
+                  <tr><td><b>DBMS</b></td><td><span class="badge blue">CS503</span></td><td>Dr. Sunita Rao</td><td>20</td><td>13</td><td><div class="prog-wrap"><div class="prog-bar"><div class="prog-fill red" style="width:65%"></div></div><span class="prog-pct" style="color:var(--red)">65%</span></div></td></tr>
+                  <tr><td><b>Computer Networks</b></td><td><span class="badge blue">CS504</span></td><td>Dr. Deepak Joshi</td><td>16</td><td>14</td><td><div class="prog-wrap"><div class="prog-bar"><div class="prog-fill green" style="width:88%"></div></div><span class="prog-pct" style="color:var(--green)">88%</span></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- STUDENT REPORTS -->
+        <div class="panel" id="s-reports">
+          <div class="grid-2">
+            <div class="sec-card">
+              <div class="sec-head"><h2>Monthly Attendance Summary</h2></div>
+              <div class="sec-body">
+                <svg viewBox="0 0 200 200" width="100%" height="180" style="display:block;margin:0 auto;">
+                  <circle cx="100" cy="100" r="70" fill="none" stroke="#E2E8F0" stroke-width="24"/>
+                  <circle cx="100" cy="100" r="70" fill="none" stroke="#10B981" stroke-width="24" stroke-dasharray="382" stroke-dashoffset="50" stroke-linecap="round" transform="rotate(-90 100 100)"/>
+                  <circle cx="100" cy="100" r="70" fill="none" stroke="#EF4444" stroke-width="24" stroke-dasharray="382" stroke-dashoffset="332" stroke-linecap="round" transform="rotate(-90 100 100)"/>
+                  <text x="100" y="96" text-anchor="middle" font-size="22" font-weight="700" fill="#0B1437">87%</text>
+                  <text x="100" y="114" text-anchor="middle" font-size="10" fill="#64748B">Overall</text>
+                </svg>
+                <div class="donut-legend" style="margin-top:1rem">
+                  <div class="dl-item"><div class="dl-dot" style="background:var(--green)"></div>Present <span class="dl-val" style="color:var(--green)">68</span></div>
+                  <div class="dl-item"><div class="dl-dot" style="background:var(--red)"></div>Absent <span class="dl-val" style="color:var(--red)">10</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="sec-card">
+              <div class="sec-head"><h2>Download Reports</h2><button class="btn btn-primary btn-sm" onclick="showToast('📄 Report downloaded!')">⬇ Export PDF</button></div>
+              <div class="sec-body">
+                <div class="notice info" style="margin-bottom:0.5rem"><span class="notice-ico">📋</span><div><div class="notice-title">Full Semester Report</div><div class="notice-sub">All subjects • Jul 2025</div></div></div>
+                <div class="notice info" style="margin-bottom:0.5rem"><span class="notice-ico">📊</span><div><div class="notice-title">Subject-wise Breakdown</div><div class="notice-sub">Detailed per-subject stats</div></div></div>
+                <div class="notice info"><span class="notice-ico">📅</span><div><div class="notice-title">Monthly Summary</div><div class="notice-sub">Calendar view with dates</div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STUDENT LEAVE -->
+        <div class="panel" id="s-leave">
+          <div class="grid-2">
+            <div class="sec-card">
+              <div class="sec-head"><h2>Apply for Leave</h2></div>
+              <div class="sec-body">
+                <div class="form-field"><label>Subject</label><select><option>Select Subject</option><option>Data Structures</option><option>DBMS</option><option>Mathematics III</option><option>Operating Systems</option><option>Computer Networks</option></select></div>
+                <div class="form-row">
+                  <div class="form-field"><label>From Date</label><input type="date"/></div>
+                  <div class="form-field"><label>To Date</label><input type="date"/></div>
+                </div>
+                <div class="form-field"><label>Reason</label><textarea placeholder="Describe your reason for leave..."></textarea></div>
+                <button class="btn btn-primary" onclick="showToast('✅ Leave request submitted!')">Submit Request</button>
+              </div>
+            </div>
+            <div class="sec-card">
+              <div class="sec-head"><h2>My Leave Requests</h2></div>
+              <div class="sec-body tbl-wrap">
+                <table>
+                  <thead><tr><th>Date</th><th>Subject</th><th>Status</th></tr></thead>
+                  <tbody>
+                    <tr><td>Jul 22</td><td>Computer Networks</td><td><span class="badge green">Approved</span></td></tr>
+                    <tr><td>Jul 15</td><td>DBMS</td><td><span class="badge red">Rejected</span></td></tr>
+                    <tr><td>Jul 10</td><td>OS</td><td><span class="badge amber">Pending</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STUDENT NOTICES -->
+        <div class="panel" id="s-notices">
+          <div class="sec-card">
+            <div class="sec-head"><h2>🔔 Notices & Announcements</h2></div>
+            <div class="sec-body">
+              <div class="notice warn"><span class="notice-ico">⚠️</span><div><div class="notice-title">Attendance Shortage Warning</div><div class="notice-sub">Jul 20 • From: Admin</div><p style="margin-top:6px;font-size:0.84rem">Students with attendance below 75% in any subject will not be allowed to sit for end-semester exams.</p></div></div>
+              <div class="notice info"><span class="notice-ico">📅</span><div><div class="notice-title">Mid-Term Schedule Released</div><div class="notice-sub">Jul 18 • From: Examination Cell</div><p style="margin-top:6px;font-size:0.84rem">Mid-term examinations will be held from August 5–12. Check the exam portal for your hall ticket.</p></div></div>
+              <div class="notice success"><span class="notice-ico">🎉</span><div><div class="notice-title">Holiday Notice — Independence Day</div><div class="notice-sub">Jul 15 • From: Principal</div><p style="margin-top:6px;font-size:0.84rem">The college will remain closed on August 15th for Independence Day. No classes will be held.</p></div></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ TEACHER PORTAL ════════════ -->
+<div id="teacher-page" class="page">
+  <div class="app-shell">
+    <aside class="sidebar" id="teacher-sidebar">
+      <div class="sidebar-brand">
+        <div class="s-icon" style="background:#10B981">🏫</div>
+        <div><div class="s-brand-name">EduTrack</div><div class="s-brand-role">Teacher Portal</div></div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">Main</div>
+        <a class="nav-item active" onclick="showPanel('t','dashboard',this)"><span class="ni">📊</span>Dashboard</a>
+        <a class="nav-item" onclick="showPanel('t','mark',this)"><span class="ni">✅</span>Mark Attendance</a>
+        <a class="nav-item" onclick="showPanel('t','students',this)"><span class="ni">👥</span>My Students</a>
+        <a class="nav-item" onclick="showPanel('t','reports',this)"><span class="ni">📈</span>Reports</a>
+        <div class="nav-section-label">Tools</div>
+        <a class="nav-item" onclick="showPanel('t','leave',this)"><span class="ni">📋</span>Leave Requests<span class="nav-badge">3</span></a>
+        <a class="nav-item" onclick="showPanel('t','schedule',this)"><span class="ni">🗓️</span>Timetable</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="su-avatar" style="background:#10B981">PS</div>
+          <div><div class="su-name">Dr. Priya Sharma</div><div class="su-role">CS — Data Structures</div></div>
+          <button class="logout-btn" onclick="logout()">⏏</button>
+        </div>
+      </div>
+    </aside>
+    <div class="main-content">
+      <div class="topbar">
+        <div class="topbar-title" id="t-topbar-title">Dashboard</div>
+        <div class="topbar-right">
+          <span class="topbar-date" id="teacher-date"></span>
+          <button class="notif-btn">🔔<span class="notif-dot"></span></button>
+        </div>
+      </div>
+      <div class="content">
+
+        <!-- TEACHER DASHBOARD -->
+        <div class="panel active" id="t-dashboard">
+          <div class="stats-row">
+            <div class="stat-card"><div class="stat-ico blue">👥</div><div><div class="stat-val">120</div><div class="stat-lbl">Total Students</div></div></div>
+            <div class="stat-card"><div class="stat-ico green">📚</div><div><div class="stat-val">3</div><div class="stat-lbl">Subjects Assigned</div></div></div>
+            <div class="stat-card"><div class="stat-ico amber">⚠️</div><div><div class="stat-val">8</div><div class="stat-lbl">Low Attendance</div></div></div>
+            <div class="stat-card"><div class="stat-ico purple">📋</div><div><div class="stat-val">3</div><div class="stat-lbl">Pending Leaves</div></div></div>
+          </div>
+          <div class="grid-2">
+            <div class="sec-card">
+              <div class="sec-head"><h2>Today's Classes</h2><span class="topbar-date" id="t-today"></span></div>
+              <div class="sec-body">
+                <div class="notice info"><span class="notice-ico">⏰</span><div><div class="notice-title">9:00 AM — Data Structures (CS-A)</div><div class="notice-sub">Room 301 • 60 students • <span style="color:var(--green);font-weight:600">Marked ✓</span></div></div></div>
+                <div class="notice warn"><span class="notice-ico">🔔</span><div><div class="notice-title">11:00 AM — Data Structures (CS-B)</div><div class="notice-sub">Room 302 • 58 students • <span style="color:var(--amber);font-weight:600">Pending</span></div></div></div>
+                <div class="notice info" style="margin-top:0.75rem;cursor:pointer" onclick="showPanel('t','mark',document.querySelector('#teacher-sidebar .nav-item:nth-child(3)'))">
+                  <span class="notice-ico">➡️</span><div><div class="notice-title">Mark 11:00 AM attendance now</div><div class="notice-sub">Tap to go to Mark Attendance</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="sec-card">
+              <div class="sec-head"><h2>Students Below 75%</h2><span class="badge red">8 at risk</span></div>
+              <div class="sec-body tbl-wrap">
+                <table>
+                  <thead><tr><th>Student</th><th>Subject</th><th>Att%</th></tr></thead>
+                  <tbody>
+                    <tr><td><div class="av-cell"><div class="av" style="background:#EF4444">AK</div>Aryan Kapoor</div></td><td>DS</td><td><span style="color:var(--red);font-weight:700">62%</span></td></tr>
+                    <tr><td><div class="av-cell"><div class="av" style="background:#F59E0B">MP</div>Meera Patel</div></td><td>DS</td><td><span style="color:var(--red);font-weight:700">68%</span></td></tr>
+                    <tr><td><div class="av-cell"><div class="av" style="background:#8B5CF6">RS</div>Riya Shah</div></td><td>DS</td><td><span style="color:var(--amber);font-weight:700">73%</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="sec-card">
+            <div class="sec-head"><h2>Class Attendance Overview</h2></div>
+            <div class="sec-body">
+              <div class="report-subject"><div class="rs-name">Data Structures A</div><div class="rs-bar"><div class="rs-fill" style="width:84%;background:var(--green)"></div></div><div class="rs-stat" style="color:var(--green)">84%</div></div>
+              <div class="report-subject"><div class="rs-name">Data Structures B</div><div class="rs-bar"><div class="rs-fill" style="width:79%;background:var(--amber)"></div></div><div class="rs-stat" style="color:var(--amber)">79%</div></div>
+              <div class="report-subject"><div class="rs-name">Algorithms Lab</div><div class="rs-bar"><div class="rs-fill" style="width:91%;background:var(--green)"></div></div><div class="rs-stat" style="color:var(--green)">91%</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MARK ATTENDANCE -->
+        <div class="panel" id="t-mark">
+          <div class="sec-card" style="margin-bottom:1.5rem">
+            <div class="sec-head"><h2>Select Class</h2></div>
+            <div class="sec-body">
+              <div class="form-row">
+                <div class="form-field"><label>Subject</label><select><option>Data Structures (CS-A)</option><option>Data Structures (CS-B)</option><option>Algorithms Lab</option></select></div>
+                <div class="form-field"><label>Date</label><input type="date" id="att-date"/></div>
+              </div>
+              <div style="display:flex;gap:0.75rem;margin-top:0.5rem">
+                <button class="btn btn-outline btn-sm" onclick="markAll('P')">✓ Mark All Present</button>
+                <button class="btn btn-sm" style="background:var(--red-light);color:var(--red)" onclick="markAll('A')">✗ Mark All Absent</button>
+              </div>
+            </div>
+          </div>
+          <div class="sec-card">
+            <div class="sec-head"><h2>Students — CS-A (60 students)</h2><button class="btn btn-primary btn-sm" onclick="showToast('✅ Attendance saved successfully!')">Save Attendance</button></div>
+            <div class="sec-body">
+              <div class="att-grid" id="att-grid"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TEACHER STUDENTS -->
+        <div class="panel" id="t-students">
+          <div class="sec-card">
+            <div class="sec-head">
+              <h2>Student List</h2>
+              <div class="filter-bar">
+                <div class="search-box"><span class="si">🔍</span><input type="text" placeholder="Search students..."/></div>
+                <select class="filter-select"><option>All Classes</option><option>CS-A</option><option>CS-B</option></select>
+              </div>
+            </div>
+            <div class="sec-body tbl-wrap">
+              <table>
+                <thead><tr><th>Student</th><th>Roll No</th><th>Class</th><th>Present</th><th>Absent</th><th>Attendance</th><th>Action</th></tr></thead>
+                <tbody id="student-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- TEACHER REPORTS -->
+        <div class="panel" id="t-reports">
+          <div class="stats-row" style="grid-template-columns:repeat(3,1fr)">
+            <div class="stat-card"><div class="stat-ico green">📊</div><div><div class="stat-val">83%</div><div class="stat-lbl">Avg Class Attendance</div></div></div>
+            <div class="stat-card"><div class="stat-ico blue">📅</div><div><div class="stat-val">24</div><div class="stat-lbl">Classes Conducted</div></div></div>
+            <div class="stat-card"><div class="stat-ico red">⚠️</div><div><div class="stat-val">8</div><div class="stat-lbl">Defaulters</div></div></div>
+          </div>
+          <div class="sec-card">
+            <div class="sec-head"><h2>Attendance Report — Data Structures</h2><button class="btn btn-primary btn-sm" onclick="showToast('📄 Report exported!')">⬇ Export</button></div>
+            <div class="sec-body tbl-wrap">
+              <table>
+                <thead><tr><th>Date</th><th>Day</th><th>Present</th><th>Absent</th><th>%</th></tr></thead>
+                <tbody>
+                  <tr><td>Jul 24</td><td>Thu</td><td>55</td><td>5</td><td><span class="badge green">91.6%</span></td></tr>
+                  <tr><td>Jul 23</td><td>Wed</td><td>48</td><td>12</td><td><span class="badge amber">80%</span></td></tr>
+                  <tr><td>Jul 22</td><td>Tue</td><td>52</td><td>8</td><td><span class="badge green">86.6%</span></td></tr>
+                  <tr><td>Jul 21</td><td>Mon</td><td>45</td><td>15</td><td><span class="badge amber">75%</span></td></tr>
+                  <tr><td>Jul 18</td><td>Fri</td><td>38</td><td>22</td><td><span class="badge red">63.3%</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- TEACHER LEAVE -->
+        <div class="panel" id="t-leave">
+          <div class="sec-card">
+            <div class="sec-head"><h2>Leave Requests</h2><span class="badge amber">3 Pending</span></div>
+            <div class="sec-body tbl-wrap">
+              <table>
+                <thead><tr><th>Student</th><th>Roll</th><th>Subject</th><th>Dates</th><th>Reason</th><th>Action</th></tr></thead>
+                <tbody>
+                  <tr><td><div class="av-cell"><div class="av" style="background:#6366F1">RK</div>Rahul Kumar</div></td><td>2201</td><td>Data Structures</td><td>Jul 22</td><td>Medical</td><td><div style="display:flex;gap:0.4rem"><button class="btn btn-success btn-sm" onclick="showToast('✅ Leave approved')">Approve</button><button class="btn btn-danger btn-sm" onclick="showToast('❌ Leave rejected')">Reject</button></div></td></tr>
+                  <tr><td><div class="av-cell"><div class="av" style="background:#F59E0B">MP</div>Meera Patel</div></td><td>2205</td><td>Data Structures</td><td>Jul 20–21</td><td>Family event</td><td><div style="display:flex;gap:0.4rem"><button class="btn btn-success btn-sm" onclick="showToast('✅ Leave approved')">Approve</button><button class="btn btn-danger btn-sm" onclick="showToast('❌ Leave rejected')">Reject</button></div></td></tr>
+                  <tr><td><div class="av-cell"><div class="av" style="background:#10B981">AJ</div>Anjali Joshi</div></td><td>2210</td><td>Data Structures</td><td>Jul 24</td><td>Exam duty</td><td><div style="display:flex;gap:0.4rem"><button class="btn btn-success btn-sm" onclick="showToast('✅ Leave approved')">Approve</button><button class="btn btn-danger btn-sm" onclick="showToast('❌ Leave rejected')">Reject</button></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- TEACHER SCHEDULE -->
+        <div class="panel" id="t-schedule">
+          <div class="sec-card">
+            <div class="sec-head"><h2>My Weekly Timetable</h2></div>
+            <div class="sec-body tbl-wrap">
+              <table>
+                <thead><tr><th>Time</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th></tr></thead>
+                <tbody>
+                  <tr><td><b>9–10 AM</b></td><td><span class="badge blue">DS — CS-A</span></td><td>—</td><td><span class="badge blue">DS — CS-A</span></td><td><span class="badge blue">DS — CS-A</span></td><td>—</td></tr>
+                  <tr><td><b>11–12 PM</b></td><td>—</td><td><span class="badge green">DS — CS-B</span></td><td>—</td><td><span class="badge green">DS — CS-B</span></td><td><span class="badge green">DS — CS-B</span></td></tr>
+                  <tr><td><b>2–4 PM</b></td><td>—</td><td>—</td><td><span class="badge purple">Algo Lab</span></td><td>—</td><td><span class="badge purple">Algo Lab</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ ADMIN PORTAL ════════════ -->
+<div id="admin-page" class="page">
+  <div class="app-shell">
+    <aside class="sidebar" id="admin-sidebar">
+      <div class="sidebar-brand">
+        <div class="s-icon" style="background:#8B5CF6">⚙️</div>
+        <div><div class="s-brand-name">EduTrack</div><div class="s-brand-role">Admin Portal</div></div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">Overview</div>
+        <a class="nav-item active" onclick="showPanel('a','dashboard',this)"><span class="ni">📊</span>Dashboard</a>
+        <a class="nav-item" onclick="showPanel('a','students',this)"><span class="ni">👥</span>Students</a>
+        <a class="nav-item" onclick="showPanel('a','teachers',this)"><span class="ni">👨‍🏫</span>Teachers</a>
+        <a class="nav-item" onclick="showPanel('a','classes',this)"><span class="ni">🏫</span>Classes</a>
+        <div class="nav-section-label">Management</div>
+        <a class="nav-item" onclick="showPanel('a','reports',this)"><span class="ni">📈</span>Reports</a>
+        <a class="nav-item" onclick="showPanel('a','notices',this)"><span class="ni">📢</span>Notices</a>
+        <a class="nav-item" onclick="showPanel('a','settings',this)"><span class="ni">⚙️</span>Settings</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="su-avatar" style="background:#8B5CF6">AD</div>
+          <div><div class="su-name">Admin</div><div class="su-role">System Administrator</div></div>
+          <button class="logout-btn" onclick="logout()">⏏</button>
+        </div>
+      </div>
+    </aside>
+    <div class="main-content">
+      <div class="topbar">
+        <div class="topbar-title" id="a-topbar-title">Dashboard</div>
+        <div class="topbar-right">
+          <button class="btn btn-primary btn-sm" onclick="showToast('⬇ Generating full report...')">⬇ Export Report</button>
+          <button class="notif-btn">🔔<span class="notif-dot"></span></button>
+        </div>
+      </div>
+      <div class="content">
+
+        <!-- ADMIN DASHBOARD -->
+        <div class="panel active" id="a-dashboard">
+          <div class="stats-row">
+            <div class="stat-card"><div class="stat-ico blue">👥</div><div><div class="stat-val">1,240</div><div class="stat-lbl">Total Students</div><div class="stat-chg up">↑ 40 enrolled</div></div></div>
+            <div class="stat-card"><div class="stat-ico green">👨‍🏫</div><div><div class="stat-val">48</div><div class="stat-lbl">Faculty Members</div></div></div>
+            <div class="stat-card"><div class="stat-ico amber">📊</div><div><div class="stat-val">82%</div><div class="stat-lbl">Avg Attendance</div><div class="stat-chg up">↑ 3% vs last sem</div></div></div>
+            <div class="stat-card"><div class="stat-ico red">⚠️</div><div><div class="stat-val">64</div><div class="stat-lbl">Defaulters</div><div class="stat-chg dn">↑ 5 this week</div></div></div>
+          </div>
+          <div class="grid-2">
+            <div class="sec-card">
+              <div class="sec-head"><h2>Department-wise Attendance</h2></div>
+              <div class="sec-body">
+                <div class="report-subject"><div class="rs-name">Computer Science</div><div class="rs-bar"><div class="rs-fill" style="width:85%;background:var(--green)"></div></div><div class="rs-stat" style="color:var(--green)">85%</div></div>
+                <div class="report-subject"><div class="rs-name">Mechanical Engg</div><div class="rs-bar"><div class="rs-fill" style="width:79%;background:var(--amber)"></div></div><div class="rs-stat" style="color:var(--amber)">79%</div></div>
+                <div class="report-subject"><div class="rs-name">Electronics</div><div class="rs-bar"><div class="rs-fill" style="width:88%;background:var(--green)"></div></div><div class="rs-stat" style="color:var(--green)">88%</div></div>
+                <div class="report-subject"><div class="rs-name">Civil Engg</div><div class="rs-bar"><div class="rs-fill" style="width:71%;background:var(--red)"></div></div><div class="rs-stat" style="color:var(--red)">71%</div></div>
+                <div class="report-subject"><div class="rs-name">Information Tech</div><div class="rs-bar"><div class="rs-fill" style="width:83%;background:var(--green)"></div></div><div class="rs-stat" style="color:var(--green)">83%</div></div>
+              </div>
+            </div>
+            <div class="sec-card">
+              <div class="sec-head"><h2>Quick Actions</h2></div>
+              <div class="sec-body">
+                <div class="qa-grid">
+                  <div class="qa-card" onclick="showPanel('a','students',document.querySelector('#admin-sidebar .nav-item:nth-child(3)'))"><div class="qa-ico">👤</div><div class="qa-lbl">Add Student</div></div>
+                  <div class="qa-card" onclick="showPanel('a','teachers',document.querySelector('#admin-sidebar .nav-item:nth-child(4)'))"><div class="qa-ico">👨‍🏫</div><div class="qa-lbl">Add Teacher</div></div>
+                  <div class="qa-card" onclick="showPanel('a','notices',document.querySelector('#admin-sidebar .nav-item:nth-child(7)'))"><div class="qa-ico">📢</div><div class="qa-lbl">Send Notice</div></div>
+                  <div class="qa-card" onclick="showToast('📄 Generating report...')"><div class="qa-ico">📊</div><div class="qa-lbl">Get Report</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="sec-card">
+            <div class="sec-head"><h2>Recent Activity</h2></div>
+            <div class="sec-body tbl-wrap">
+              <table>
+                <thead><tr><th>Time</th><th>Action</th><th>By</th><th>Details</th></tr></thead>
+                <tbody>
+                  <tr><td>9:15 AM</td><td><span class="badge green">Attendance Marked</span></td><td>Dr. Priya Sharma</td><td>CS-A Data Structures — 55/60 present</td></tr>
+                  <tr><td>9:02 AM</td><td><span class="badge blue">Login</span></td><td>Mr. Kiran Patel</td><td>Teacher portal accessed</td></tr>
+                  <tr><td>8:45 AM</td><td><span class="badge amber">Leave Approved</span></td><td>Dr. Sunita Rao</td><td>Rahul Kumar — DBMS Jul 22</td></tr>
+                  <tr><td>Yesterday</td><td><span class="badge purple">Notice Sent</span></td><td>Admin</td><td>Attendance shortage warning to all students</td></tr>
+                  <tr><td>Yesterday</td><td><span class="badge red">Defaulter Flag</span></td><td>System</td><td>5 new students below 75% threshold</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ADMIN STUDENTS -->
+        <div class="panel" id="a-students">
+          <div class="sec-card">
+            <div class="sec-head">
+              <h2>All Students</h2>
+              <div class="filter-bar">
+                <div class="search-box"><span class="si">🔍</span><input placeholder="Search by name or roll..."/></div>
+                <select class="filter-select"><option>All Departments</option><option>Computer Science</option><option>Mechanical</option></select>
+                <button class="btn btn-primary btn-sm" onclick="showToast('➕ Add student form opened')">+ Add Student</button>
+              </div>
+            </div>
+            <div class="sec-body tbl-wrap">
+              <table>
+                <thead><tr><th>Student</th><th>Roll</th><th>Dept</th><th>Sem</th><th>Attendance</th><th>Status</th><th>Action</th></tr></thead>
+                <tbody id="admin-student-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ADMIN TEACHERS -->
+        <div class="panel" id="a-teachers">
+          <div class="sec-card">
+            <div class="sec-head"><h2>Faculty Management</h2><button class="btn btn-primary btn-sm" onclick="showToast('➕ Add teacher form opened')">+ Add Teacher</button></div>
+            <div class="sec-body tbl-wrap">
+              <table>
+                <thead><tr><th>Name</th><th>ID</th><th>Dept</th><th>Subjects</th><th>Classes</th><th>Status</th><th>Action</th></tr></thead>
+                <tbody>
+                  <tr><td><div class="av-cell"><div class="av" style="background:#10B981">PS</div>Dr. Priya Sharma</div></td><td>FAC001</td><td>CS</td><td>Data Structures</td><td>CS-A, CS-B</td><td><span class="badge green">Active</span></td><td><button class="btn btn-outline btn-sm">Edit</button></td></tr>
+                  <tr><td><div class="av-cell"><div class="av" style="background:#2563EB">KP</div>Mr. Kiran Patel</div></td><td>FAC002</td><td>CS</td><td>Operating Systems</td><td>CS-A</td><td><span class="badge green">Active</span></td><td><button class="btn btn-outline btn-sm">Edit</button></td></tr>
+                  <tr><td><div class="av-cell"><div class="av" style="background:#8B5CF6">SR</div>Dr. Sunita Rao</div></td><td>FAC003</td><td>CS</td><td>DBMS</td><td>CS-A, CS-B</td><td><span class="badge green">Active</span></td><td><button class="btn btn-outline btn-sm">Edit</button></td></tr>
+                  <tr><td><div class="av-cell"><div class="av" style="background:#F59E0B">AM</div>Prof. Anil Mehta</div></td><td>FAC004</td><td>Math</td><td>Mathematics III</td><td>CS-A, CS-B, ME-A</td><td><span class="badge green">Active</span></td><td><button class="btn btn-outline btn-sm">Edit</button></td></tr>
+                  <tr><td><div class="av-cell"><div class="av" style="background:#EF4444">DJ</div>Dr. Deepak Joshi</div></td><td>FAC005</td><td>CS</td><td>Computer Networks</td><td>CS-A</td><td><span class="badge amber">On Leave</span></td><td><button class="btn btn-outline btn-sm">Edit</button></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ADMIN CLASSES -->
+        <div class="panel" id="a-classes">
+          <div class="stats-row" style="grid-template-columns:repeat(3,1fr)">
+            <div class="stat-card"><div class="stat-ico blue">🏫</div><div><div class="stat-val">24</div><div class="stat-lbl">Total Classes</div></div></div>
+            <div class="stat-card"><div class="stat-ico green">📚</div><div><div class="stat-val">86</div><div class="stat-lbl">Subjects Running</div></div></div>
+            <div class="stat-card"><div class="stat-ico amber">🕐</div><div><div class="stat-val">6</div><div class="stat-lbl">Semesters Active</div></div></div>
+          </div>
+          <div class="sec-card">
+            <div class="sec-head"><h2>Class Overview</h2><button class="btn btn-primary btn-sm" onclick="showToast('➕ Add class')">+ Add Class</button></div>
+            <div class="sec-body tbl-wrap">
+              <table>
+                <thead><tr><th>Class</th><th>Dept</th><th>Sem</th><th>Students</th><th>Avg Att%</th><th>Defaulters</th></tr></thead>
+                <tbody>
+                  <tr><td><b>CS-A</b></td><td>Computer Science</td><td>5</td><td>60</td><td><span class="badge green">85%</span></td><td><span class="badge red">4</span></td></tr>
+                  <tr><td><b>CS-B</b></td><td>Computer Science</td><td>5</td><td>58</td><td><span class="badge amber">79%</span></td><td><span class="badge red">7</span></td></tr>
+                  <tr><td><b>ME-A</b></td><td>Mechanical</td><td>3</td><td>55</td><td><span class="badge amber">77%</span></td><td><span class="badge red">9</span></td></tr>
+                  <tr><td><b>EC-A</b></td><td>Electronics</td><td>5</td><td>52</td><td><span class="badge green">88%</span></td><td><span class="badge amber">2</span></td></tr>
+                  <tr><td><b>CV-A</b></td><td>Civil</td><td>5</td><td>48</td><td><span class="badge red">71%</span></td><td><span class="badge red">12</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ADMIN REPORTS -->
+        <div class="panel" id="a-reports">
+          <div class="grid-2">
+            <div class="sec-card">
+              <div class="sec-head"><h2>Institute Summary</h2><button class="btn btn-primary btn-sm" onclick="showToast('📄 Exported!')">⬇ Export</button></div>
+              <div class="sec-body">
+                <svg viewBox="0 0 200 200" width="100%" height="160" style="display:block;margin:0 auto;">
+                  <circle cx="100" cy="100" r="70" fill="none" stroke="#E2E8F0" stroke-width="24"/>
+                  <circle cx="100" cy="100" r="70" fill="none" stroke="#10B981" stroke-width="24" stroke-dasharray="382" stroke-dashoffset="61" transform="rotate(-90 100 100)"/>
+                  <circle cx="100" cy="100" r="70" fill="none" stroke="#EF4444" stroke-width="24" stroke-dasharray="382" stroke-dashoffset="320" transform="rotate(-90 100 100)"/>
+                  <text x="100" y="96" text-anchor="middle" font-size="22" font-weight="700" fill="#0B1437">82%</text>
+                  <text x="100" y="114" text-anchor="middle" font-size="10" fill="#64748B">Institute Avg</text>
+                </svg>
+                <div style="display:flex;justify-content:center;gap:1.5rem;margin-top:1rem">
+                  <div class="dl-item"><div class="dl-dot" style="background:var(--green)"></div>Present 82%</div>
+                  <div class="dl-item"><div class="dl-dot" style="background:var(--red)"></div>Absent 18%</div>
+                </div>
+              </div>
+            </div>
+            <div class="sec-card">
+              <div class="sec-head"><h2>Defaulter Report</h2><span class="badge red">64 students</span></div>
+              <div class="sec-body tbl-wrap">
+                <table>
+                  <thead><tr><th>Student</th><th>Class</th><th>Att%</th></tr></thead>
+                  <tbody>
+                    <tr><td>Aryan Kapoor</td><td>CS-A</td><td><span style="color:var(--red);font-weight:700">62%</span></td></tr>
+                    <tr><td>Ravi Singh</td><td>ME-A</td><td><span style="color:var(--red);font-weight:700">58%</span></td></tr>
+                    <tr><td>Pooja Nair</td><td>CV-A</td><td><span style="color:var(--red);font-weight:700">55%</span></td></tr>
+                    <tr><td>Meera Patel</td><td>CS-B</td><td><span style="color:var(--red);font-weight:700">68%</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ADMIN NOTICES -->
+        <div class="panel" id="a-notices">
+          <div class="grid-2">
+            <div class="sec-card">
+              <div class="sec-head"><h2>Send Notice</h2></div>
+              <div class="sec-body">
+                <div class="form-field"><label>Title</label><input placeholder="Notice title..."/></div>
+                <div class="form-field"><label>Target Audience</label><select><option>All Students</option><option>All Teachers</option><option>CS Department</option><option>Specific Class</option></select></div>
+                <div class="form-field"><label>Priority</label><select><option>Normal</option><option>Important</option><option>Urgent</option></select></div>
+                <div class="form-field"><label>Message</label><textarea placeholder="Type your notice here..."></textarea></div>
+                <button class="btn btn-primary" onclick="showToast('📢 Notice sent to all students!')">Send Notice</button>
+              </div>
+            </div>
+            <div class="sec-card">
+              <div class="sec-head"><h2>Sent Notices</h2></div>
+              <div class="sec-body">
+                <div class="notice warn"><span class="notice-ico">⚠️</span><div><div class="notice-title">Attendance Shortage Warning</div><div class="notice-sub">Jul 20 • All Students • 1,240 recipients</div></div></div>
+                <div class="notice info"><span class="notice-ico">📅</span><div><div class="notice-title">Mid-Term Schedule</div><div class="notice-sub">Jul 18 • All Students</div></div></div>
+                <div class="notice success"><span class="notice-ico">🎉</span><div><div class="notice-title">Independence Day Holiday</div><div class="notice-sub">Jul 15 • Everyone</div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ADMIN SETTINGS -->
+        <div class="panel" id="a-settings">
+          <div class="grid-2">
+            <div class="sec-card">
+              <div class="sec-head"><h2>System Settings</h2></div>
+              <div class="sec-body">
+                <div class="form-field"><label>Institute Name</label><input value="VK Institute of Technology"/></div>
+                <div class="form-field"><label>Minimum Attendance %</label><input type="number" value="75"/></div>
+                <div class="form-field"><label>Academic Year</label><input value="2024–2025"/></div>
+                <div class="form-field"><label>Current Semester</label><select><option>Semester 5</option><option>Semester 6</option></select></div>
+                <button class="btn btn-primary" onclick="showToast('✅ Settings saved!')">Save Settings</button>
+              </div>
+            </div>
+            <div class="sec-card">
+              <div class="sec-head"><h2>Notification Settings</h2></div>
+              <div class="sec-body">
+                <div class="notice info"><span class="notice-ico">📧</span><div><div class="notice-title">Email Alerts</div><div class="notice-sub">Send automatic email to students below 75%</div></div></div>
+                <br/>
+                <div class="form-field"><label>Alert Threshold (%)</label><input type="number" value="75"/></div>
+                <div class="form-field"><label>Alert Frequency</label><select><option>Weekly</option><option>Daily</option><option>On each absence</option></select></div>
+                <button class="btn btn-success" onclick="showToast('🔔 Notification settings updated!')">Update</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── STATE ──
+let currentRole = 'student';
+const titles = {dashboard:'Dashboard',attendance:'My Attendance',subjects:'Subjects',reports:'Reports',leave:'Leave Requests',notices:'Notices',mark:'Mark Attendance',students:'Students',teachers:'Faculty',classes:'Classes',schedule:'Timetable',settings:'Settings'};
+
+// ── LOGIN ──
+function setRole(role, el) {
+  currentRole = role;
+  document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+function doLogin() {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(currentRole + '-page').classList.add('active');
+  init();
+}
+function logout() {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('login-page').classList.add('active');
+}
+
+// ── PANEL SWITCH ──
+function showPanel(prefix, name, navEl) {
+  document.querySelectorAll('#' + prefix + '-page .panel').forEach(p => p.classList.remove('active'));
+  const panel = document.getElementById(prefix + '-' + name);
+  if (panel) panel.classList.add('active');
+  document.querySelectorAll('#' + (prefix === 's' ? 'student' : prefix === 't' ? 'teacher' : 'admin') + '-sidebar .nav-item').forEach(n => n.classList.remove('active'));
+  if (navEl) navEl.classList.add('active');
+  const titleEl = document.getElementById(prefix + '-topbar-title');
+  if (titleEl) titleEl.textContent = titles[name] || name;
+}
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ── DATE ──
+function setDates() {
+  const opts = {weekday:'long',year:'numeric',month:'long',day:'numeric'};
+  const ds = new Date().toLocaleDateString('en-IN', opts);
+  ['today-date','teacher-date','t-today'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = ds; });
+  const attDate = document.getElementById('att-date');
+  if (attDate) attDate.value = new Date().toISOString().split('T')[0];
+}
+
+// ── CALENDAR ──
+function buildCalendar() {
+  const cal = document.getElementById('student-cal');
+  if (!cal) return;
+  const days = ['S','M','T','W','T','F','S'];
+  let html = days.map(d => `<div class="cal-day-hdr">${d}</div>`).join('');
+  const types = ['','empty','present','present','present','holiday','present','absent','present','present','present','present','present','absent','holiday','present','present','present','present','absent','present','present','present','present','today','future','future','future','future','future','future'];
+  let startDay = 2;
+  for (let i = 0; i < startDay; i++) html += `<div class="cal-day empty"></div>`;
+  for (let d = 1; d <= 31; d++) {
+    const type = types[d] || (d > 24 ? 'future' : 'present');
+    html += `<div class="cal-day ${type}">${d}</div>`;
+  }
+  cal.innerHTML = html;
+}
+
+// ── ATTENDANCE GRID ──
+const sampleStudents = [
+  {name:'Rahul Kumar',roll:'2201'},{name:'Priya Singh',roll:'2202'},{name:'Arjun Mehta',roll:'2203'},
+  {name:'Divya Patel',roll:'2204'},{name:'Meera Kapoor',roll:'2205'},{name:'Suresh Rao',roll:'2206'},
+  {name:'Anjali Joshi',roll:'2207'},{name:'Karan Shah',roll:'2208'},{name:'Neha Gupta',roll:'2209'},
+  {name:'Amit Verma',roll:'2210'},{name:'Riya Nair',roll:'2211'},{name:'Vijay Kumar',roll:'2212'},
+];
+const colors = ['#6366F1','#10B981','#F59E0B','#EF4444','#8B5CF6','#2563EB','#06B6D4','#84CC16'];
+function buildAttGrid() {
+  const g = document.getElementById('att-grid');
+  if (!g) return;
+  g.innerHTML = sampleStudents.map((s,i) => {
+    const c = colors[i % colors.length];
+    const initials = s.name.split(' ').map(n=>n[0]).join('');
+    return `<div class="att-card">
+      <div class="att-info">
+        <div class="av" style="background:${c}">${initials}</div>
+        <div><div class="att-name">${s.name}</div><div class="att-roll">${s.roll}</div></div>
+      </div>
+      <div class="att-toggle">
+        <button class="att-btn p-active" title="Present" onclick="toggleAtt(this,'P')">✓</button>
+        <button class="att-btn" title="Absent" onclick="toggleAtt(this,'A')">✗</button>
+        <button class="att-btn" title="Leave" onclick="toggleAtt(this,'L')">L</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function toggleAtt(btn, type) {
+  const parent = btn.parentElement;
+  parent.querySelectorAll('.att-btn').forEach(b => b.className = 'att-btn');
+  btn.classList.add(type === 'P' ? 'p-active' : type === 'A' ? 'a-active' : 'l-active');
+}
+function markAll(type) {
+  document.querySelectorAll('.att-btn').forEach(b => {
+    b.className = 'att-btn';
+    if ((type==='P'&&b.title==='Present')||(type==='A'&&b.title==='Absent')) b.classList.add(type==='P'?'p-active':'a-active');
+  });
+}
+
+// ── STUDENT TABLE (teacher) ──
+function buildStudentTable() {
+  const tb = document.getElementById('student-table-body');
+  if (!tb) return;
+  const students = [
+    {name:'Rahul Kumar',roll:'2201',cls:'CS-A',p:22,a:2,pct:92,c:'#6366F1'},
+    {name:'Priya Singh',roll:'2202',cls:'CS-A',p:20,a:4,pct:83,c:'#10B981'},
+    {name:'Aryan Kapoor',roll:'2203',cls:'CS-A',p:15,a:9,pct:62,c:'#EF4444'},
+    {name:'Meera Patel',roll:'2205',cls:'CS-B',p:16,a:8,pct:68,c:'#F59E0B'},
+    {name:'Anjali Joshi',roll:'2210',cls:'CS-B',p:21,a:3,pct:88,c:'#8B5CF6'},
+  ];
+  tb.innerHTML = students.map(s => {
+    const initials = s.name.split(' ').map(n=>n[0]).join('');
+    const color = s.pct >= 75 ? 'var(--green)' : 'var(--red)';
+    const badge = s.pct >= 75 ? 'green' : 'red';
+    return `<tr>
+      <td><div class="av-cell"><div class="av" style="background:${s.c}">${initials}</div>${s.name}</div></td>
+      <td>${s.roll}</td><td><span class="badge blue">${s.cls}</span></td>
+      <td><span style="color:var(--green);font-weight:600">${s.p}</span></td>
+      <td><span style="color:var(--red);font-weight:600">${s.a}</span></td>
+      <td><div class="prog-wrap"><div class="prog-bar"><div class="prog-fill ${badge}" style="width:${s.pct}%"></div></div><span class="prog-pct" style="color:${color}">${s.pct}%</span></div></td>
+      <td><button class="btn btn-outline btn-sm" onclick="showToast('👁 Viewing ${s.name}')">View</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── ADMIN STUDENT TABLE ──
+function buildAdminStudentTable() {
+  const tb = document.getElementById('admin-student-table');
+  if (!tb) return;
+  const data = [
+    {name:'Rahul Kumar',roll:'2201',dept:'CS',sem:5,pct:87},{name:'Priya Singh',roll:'2202',dept:'CS',sem:5,pct:83},
+    {name:'Ravi Sharma',roll:'2301',dept:'ME',sem:3,pct:72},{name:'Anjali Joshi',roll:'2101',dept:'EC',sem:5,pct:91},
+    {name:'Aryan Kapoor',roll:'2203',dept:'CS',sem:5,pct:62},{name:'Pooja Nair',roll:'2401',dept:'CV',sem:5,pct:55},
+  ];
+  const colors2 = ['#6366F1','#10B981','#F59E0B','#EF4444','#8B5CF6','#2563EB'];
+  tb.innerHTML = data.map((s,i) => {
+    const initials = s.name.split(' ').map(n=>n[0]).join('');
+    const badge = s.pct >= 75 ? 'green' : 'red';
+    const status = s.pct >= 75 ? '<span class="badge green">Regular</span>' : '<span class="badge red">Defaulter</span>';
+    return `<tr>
+      <td><div class="av-cell"><div class="av" style="background:${colors2[i]}">${initials}</div>${s.name}</div></td>
+      <td>${s.roll}</td><td>${s.dept}</td><td>Sem ${s.sem}</td>
+      <td><div class="prog-wrap"><div class="prog-bar"><div class="prog-fill ${badge}" style="width:${s.pct}%"></div></div><span class="prog-pct">${s.pct}%</span></div></td>
+      <td>${status}</td>
+      <td><div style="display:flex;gap:4px"><button class="btn btn-outline btn-sm" onclick="showToast('✏️ Edit student')">Edit</button><button class="btn btn-sm" style="background:var(--red-light);color:var(--red)" onclick="showToast('🗑 Confirm delete?')">Del</button></div></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── INIT ──
+function init() {
+  setDates();
+  buildCalendar();
+  buildAttGrid();
+  buildStudentTable();
+  buildAdminStudentTable();
+}
+init();
+</script>
+</body>
+</html>
